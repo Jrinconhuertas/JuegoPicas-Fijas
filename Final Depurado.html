@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="es">
+<head><!-- define el titulo y todas sus caracteristicas -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Audiowide">
+    <title>Picas y Fijas</title><!-- Define el titulo del juego. -->
+    <style>
+        body {
+            font-family: Audiowide, sans-serif;
+            background-color: rgb(179, 226, 251);
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1{
+            text-align: center;
+        }
+
+        .tarjeta {
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px;
+            margin-bottom: 15px;
+            padding: 20px;
+        }
+
+        label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        input [type="text"] {
+            width: 100%;
+            padding: 5px;
+            border: 1px solid #bbb;
+            border-radius: 5px;
+            margin-bottom: 5px;
+        }
+
+        button {
+            padding: 8px 16px;
+            margin-right: 10px;
+            margin-top: 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .botonUno {
+            background-color: darkgreen;
+            color: #fff;
+        }
+
+        .botonDos {
+            background-color: rgb(69, 37, 250);
+            color: #fff;
+        }
+
+        ul.list  {
+            list-style: none;
+            padding: 0;
+        }
+
+        ul.list li {
+            background-color: #fff;
+            border: 1px;
+            border-radius: 5px;
+            padding: 5px;
+            margin-bottom: 5px;
+            display:flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        table {
+            width: 100%;
+            border-collapse:collapse;
+            margin-top: 5px;
+        }
+
+        th, td {
+            border: 1px solid #ccc; 
+            padding: 5px;
+            text-align: center;
+        }
+
+        th {
+            background: #f0f0f0;
+        }
+
+        footer {
+            text-align: center;
+            font-size: 10px;
+            color: rgb(2, 2, 81);
+            margin-top: 30px;
+        }
+
+        .alert {
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+
+        .alert-info { 
+            background: #d1ecf1; 
+            color: #0c5460; 
+        }
+
+        .alert-success { 
+            background: #d4edda; 
+            color: #155724; 
+        }
+
+        .alert-warning { 
+            background: #fff3cd; 
+            color: #856404; 
+        }
+
+        .alert-danger { 
+            background: #f8d7da; 
+            color: #721c24; 
+        }
+
+        .badge {
+            background: #007bff;
+            color: #fff;
+            border-radius: 10px;
+            padding: 3px 8px;
+            font-size: 15px;
+    }
+    </style>
+</head>
+<body>
+    <h1>Picas y Fijas</h1> <!-- es el titulo del juego y dependiendo del numero del h es su tamaño -->
+    <p>Intenta descubrir un número secreto de cuatro cifras, los numeros no se repiten. ¡Vamos a Jugar!</p><!-- especifica las instruciones al jugador -->
+
+    <div class="tarjeta">
+        
+            <label for="nombreJugador">Nombre del Jugador</label><!-- campo de nombre del jugador -->
+            <input id="nombreJugador" type="text" placeholder="Tu nombre"><!-- campo donde se deben ingresar el nombre del jugador. -->
+            <button id="botonJuegoN" class="botonDos">Juego Nuevo</button> <!-- campo que crea el boton de juego nuevo -->    
+            <label for="nAdivinar">Numero de 4 Cifras</label><!-- campo para visualizar numero de 4 cifras al jugador -->
+            <input id="nAdivinar" type="text" maxlength="4" placeholder="Ejemplo 1234"><!-- campo donde capturan los numeros de 4 cifras -->
+            <button id="botonVerificar" class="botonUno">Verificar</button> <!-- campo me crea el boton de verificar en el juego  -->                   
+            <span style="float:right">Intentos: <strong id="contadorIntentos">0</strong></span><!-- campo donde coloca el boton en la derecha y pone sus numero de intentos  -->
+      
+        <div id="estadoJuego"></div>
+
+        <h3>Registro de este Juego</h3><!-- campo donde se muestra el titulo mas pequeño dependiendo del numnero de h -->
+        <ul id="listaIntentos" class="list"></ul><!-- campo donde crea una lista de intentos dependiendo de los errores-->
+    </div>
+
+    <div class="tarjeta">
+        <h3>Historial de Partidas</h3>
+        <p class="pequeno">(Jugador | Número Secreto | Cantidad de Intentos)</p><!-- campo donde crea parrafos de jugador numero secreto y cantidad de intentos -->
+        <table id="tHistorial">
+            <thead>
+            <tr>
+                <th>N°</th>
+                <th>Jugador</th><!-- campo donde muestra el encabezado de la tabla cxon el nombre de  jugador-->
+                <th>Número Secreto</th><!-- campo donde crea el encabezado de numero secreto-->
+                <th>Cantidad de Intentos</th><!-- campo donde crea el encabezado de cantidad de intentos-->
+            </tr> 
+            </thead>
+            <tbody></tbody>
+        </table>
+
+    </div>
+
+
+    <script>
+        let numeroSecreto = [];
+        let adivinar = [];
+        let contadorIntentos = 0;
+        let historial = [];
+        let juegoAct = false;
+
+        const nickJugador = document.getElementById('nombreJugador');
+        const numeroAdivinar = document.getElementById('nAdivinar');
+        const botonVerificar = document.getElementById('botonVerificar');
+        const botonJuegoN = document.getElementById('botonJuegoN');
+        const estadoJuego = document.getElementById('estadoJuego');
+        const listaIntentos = document.getElementById('listaIntentos');
+        const listIntentosSpan = document.getElementById('contadorIntentos');
+        const tablaHistorial = document.querySelector('#tHistorial tbody');
+
+        function generarNumero () {
+            numeroSecreto = [];
+            const digitos = ['0','1','2','3','4','5','6','7','8','9'];
+            while (numeroSecreto.length < 4) {
+                const crear = Math.floor(Math.random() * digitos.length);
+                const dCrear = digitos.splice(crear, 1)[0];
+                numeroSecreto.push(dCrear)
+            }
+            contadorIntentos = 0;
+            listIntentosSpan.textContent = contadorIntentos;
+            listaIntentos.innerHTML = '';
+            estadoJuego.innerHTML = '';
+            juegoAct = true;
+            return numeroSecreto.join('');
+        }
+
+        function validarNumero (validar) {
+            if (!/^[0-9]{4}$/.test(validar)){
+                return { ok:false, message: 'El Número debe tener 4 digitos.' };
+            }
+            const caracter = validar.split('');
+            if (new Set(caracter).size !== 4){
+                return { ok:false, message: 'Los Números no deben repetirse.' };
+            }
+            return { ok:true };
+        }
+
+        function validarPicasFijas (numeroSecreto, adivinar) {
+            let fijas = 0, picas = 0;
+            for (let i = 0; i < 4; i++) {
+                if (adivinar[i] === numeroSecreto [i]) fijas++;
+                else if (numeroSecreto.includes(adivinar[i])) picas++;
+            }
+            return {picas,fijas};            
+        }
+
+        function agregarHistorial(nombre, numSecreto, intentos) {
+            const fila = [nombre, numSecreto, intentos];
+            historial.push(fila);
+            actualizarTabla();
+        }
+
+        function actualizarTabla() {
+            tablaistorial.innerHTML = '';
+            historial.forEach((fila, crear) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td>${crear + 1}</td><td>${fila[0]}</td><td>${fila[1]}</td><td>${fila[2]}</td>`;
+                tablaHistorial.appendChild(tr);   
+            });       
+        }
+        
+        function juegoNuevo() {
+            const nSecreto = generarNumero();
+            console.log('Número secreto generado: ', nSecreto);
+            estadoJuego.innerHTML = `<div class = "alert  alert-info"> El juego ha iniciado. ${nickJugador.value || "nombreJugador"}!</div>`;
+        }
+
+        function verificacion(){
+            if (!juegoAct) {
+                estadoJuego.innerHTML = `<div class = 'alert alert-warning'> Da click en \"Juego Nuevo\" para comenzar. </div>`;
+                return; 
+            }
+
+        const nAdivinar = numeroAdivinar.value.trim();
+        const nValidar = validarNumero(nAdivinar);
+        if (!nValidar.ok){
+            estadoJuego.innerHTML =`<div class = 'alert alert-danger'>${nValidar.message}</div>`;
+            return;
+        }
+
+        adivinar = nAdivinar.split ('');
+        contadorIntentos++;
+        listIntentosSpan.textContent = contadorIntentos;
+
+        const { picas, fijas} = validarPicasFijas(numeroSecreto, adivinar);
+
+        const li = document.createElement('li');
+        li.innerHTML = `${nAdivinar} <span class='badge'>Fijas: ${fijas}</span> <span class='badge' style='background:#6c757d'>Picas: ${picas}</span>`;
+        listaIntentos.prepend(li);
+
+        estadoJuego.innerHTML = `<div class='alert alert-success'>Intento ${contadorIntentos}: ${nAdivinar} → Fijas: ${fijas}, Picas: ${picas}</div>`;
+        
+        if (fijas === 4) {
+            juegoAct = false;
+            const nombre = nickJugador.value.trim() || 'Jugador anónimo';
+            const secreto = numeroSecreto.join('');
+            estadoJuego.innerHTML = `<div class='alert alert-success'>¡Felicitaciones ${nombre}! Adivinaste el número <strong>${secreto}</strong> en ${contadorIntentos} intento(s).</div>`;
+            agregarHistorial(nombre, secreto, contadorIntentos);
+            numeroAdivinar.value = '';
+        }
+    }
+    
+
+        botonVerificar.addEventListener('click', verificacion);
+        botonJuegoN.addEventListener('click', juegoNuevo);
+        numeroAdivinar.addEventListener('keyup', (e) => { if (e.key === 'Enter') verificacion(); });
+        window.addEventListener('load', () => { juegoNuevo(); });
+    </script>
+</body> 
+
+<footer>Este es un proyecto de matrices en JavasScript desarrollando un juego web interactivo creado por Carlos Javier Marentes Rivera</footer><!-- campo donde crea una descripcion que mdefine el juego o de quien lo hizo-->
+
+</html>
